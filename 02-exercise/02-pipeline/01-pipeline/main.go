@@ -1,25 +1,40 @@
 package main
 
+import "fmt"
+
 // TODO: Build a Pipeline
 // generator() -> square() -> print
 
 // generator - convertes a list of integers to a channel
-func generator(nums ...int) {
-
+func generator(nums ...int) <-chan int {
+	outChan := make(chan int)
+	go func() {
+		for _, n := range nums {
+			outChan <- n
+		}
+		close(outChan)
+	}()
+	return outChan
 }
 
 // square - receive on inbound channel
 // square the number
 // output on outbound channel
-func square() {
-
+func square(inChan <-chan int) <-chan int {
+	outChan := make(chan int)
+	go func() {
+		for n := range inChan {
+			outChan <- n * n
+		}
+		close(outChan)
+	}()
+	return outChan
 }
 
 func main() {
-	// set up the pipeline
-
-	// run the last stage of pipeline
-	// receive the values from square stage
-	// print each one, until channel is closed.
-
+	// Sane return types so we can chain them like this
+	// generator -> square -> print
+	for v := range square(square(generator(2, 3, 4, 5, 6))) {
+		fmt.Println(v)
+	}
 }

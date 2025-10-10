@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-type userIDKey string
+type userIdKey string
 type database map[string]bool
 
 var db database = database{
@@ -22,7 +22,7 @@ func processRequest(ctx context.Context, userid string) {
 	// send userID information to checkMemberShipStatus for
 	// database lookup.
 	vctx := context.WithValue(ctx,
-		userIDKey("userIDKey"),
+		userIdKey("userIdKey"),
 		userid)
 
 	ch := checkMemberShipStatus(vctx)
@@ -39,7 +39,7 @@ func checkMemberShipStatus(ctx context.Context) <-chan bool {
 	go func() {
 		defer close(ch)
 		// do some database lookup
-		userid := ctx.Value(userIDKey("userIDKey")).(string)
+		userid := ctx.Value(userIdKey("userIdKey")).(string)
 		status := db[userid]
 		ch <- status
 	}()
